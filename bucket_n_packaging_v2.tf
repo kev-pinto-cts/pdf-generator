@@ -37,7 +37,8 @@ data "archive_file" "report_archive" {
   source_dir  = "../functions/generate_pdfs"
   output_path = "../functions/generate_pdfs.zip"
   excludes = ["../functions/generate_reports/__pycache__",
-  "../functions/generate_reports/common/__pycache__"]
+  "../functions/generate_reports/common/__pycache__",
+  "../functions/generate_reports/venv"]
 }
 
 resource "google_storage_bucket_object" "reporting" {

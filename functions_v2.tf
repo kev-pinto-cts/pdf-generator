@@ -1,10 +1,21 @@
 locals {
     project_id    = var.project_id
+    env_vars = {
+      PROJECT_ID = var.project_id
+      UPLOAD_BUCKET = google_storage_bucket.pdf_bucket.name
+    }
+}
+
+# https://cloud.google.com/run/docs/troubleshooting#service-agent
+resource "google_project_iam_member" "project" {
+  project = var.project_id
+  role    = "roles/run.invoker"
+  member  = "service-${data.google_project.function_project.number}@serverless-robot-prod.iam.gserviceaccount.com"
 }
 
 resource "google_cloudfunctions2_function" "function" {
   project  = var.project_id
-  name     = "pdf-generator"
+  name     = "generate-pdfs"
   location = var.region
   
 
@@ -29,10 +40,10 @@ resource "google_cloudfunctions2_function" "function" {
     max_instance_count = 1
     max_instance_request_concurrency = 1
     available_cpu = 2
-    available_memory   = "1024Mi"
+    available_memory   = "8192Mi"
     timeout_seconds    = 3600
     ingress_settings   = "ALLOW_ALL"
     all_traffic_on_latest_revision = true
-    environment_variables = each.value.environment_variables
+    environment_variables = local.env_vars
   }
 }
