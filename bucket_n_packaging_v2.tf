@@ -43,6 +43,9 @@ resource "google_storage_bucket" "source_code" {
   labels = {
     purpose = "source_code"
   }
+  depends_on = [
+    google_project_service.project
+  ]
 }
 
 resource "google_storage_bucket" "pdf_bucket" {
@@ -58,6 +61,9 @@ resource "google_storage_bucket" "pdf_bucket" {
   labels = {
     purpose = "pdfs"
   }
+  depends_on = [
+    google_project_service.project
+  ]
 }
 
 data "archive_file" "report_archive" {

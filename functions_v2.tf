@@ -48,5 +48,6 @@ resource "google_cloudfunctions2_function" "function" {
     ingress_settings   = "ALLOW_ALL"
     all_traffic_on_latest_revision = true
     environment_variables = local.env_vars
+    service_account_email = google_service_account.function.email
   }
 }
