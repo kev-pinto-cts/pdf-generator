@@ -1,6 +1,34 @@
+locals {
+  apis = [
+    "compute.googleapis.com",
+    "cloudresourcemanager.googleapis.com",
+    "cloudbilling.googleapis.com",
+    "vpcaccess.googleapis.com",
+    "servicenetworking.googleapis.com",
+    "storage-api.googleapis.com",
+    "storage-component.googleapis.com",
+    "cloudfunctions.googleapis.com",
+    "cloudbuild.googleapis.com",
+    "drive.googleapis.com",
+    "artifactregistry.googleapis.com",
+    "run.googleapis.com"
+  ]
+}
+
 data "google_project" "function_project" {
   project_id = var.project_id
 }
+
+resource "google_project_service" "project" {
+  for_each = toset(local.apis)
+
+  project = var.project_id
+  service = each.value
+
+  disable_dependent_services = true
+  disable_on_destroy = false
+}
+
 
 resource "google_storage_bucket" "source_code" {
   project = var.project_id
