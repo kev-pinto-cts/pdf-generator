@@ -23,7 +23,7 @@ resource "google_cloudfunctions2_function" "function" {
   
 
   build_config {
-    runtime     = "python39"
+    runtime     = "python311"
     entry_point = "generate_pdfs"
 
     environment_variables = {
@@ -51,3 +51,31 @@ resource "google_cloudfunctions2_function" "function" {
     service_account_email = google_service_account.function.email
   }
 }
+
+
+resource "google_cloud_tasks_queue" "reporting_queue" {
+  name = "pdf-queue"
+  project = var.project_id
+  location = var.region
+
+  rate_limits {
+    max_concurrent_dispatches = 1
+    max_dispatches_per_second = 2
+  }
+
+  retry_config {
+    max_attempts = 1
+    max_retry_duration = "4s"
+    max_backoff = "3s"
+    min_backoff = "2s"
+    max_doublings = 1
+  }
+
+  stackdriver_logging_config {
+    sampling_ratio = 0.9
+  }
+  depends_on = [
+    google_cloudfunctions2_function.function
+  ]
+}
+
