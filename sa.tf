@@ -5,7 +5,6 @@ locals {
     "roles/storage.admin",
     "roles/run.invoker",
     "roles/iam.serviceAccountTokenCreator",
-    "roles/pubsub.admin",
     "roles/cloudtrace.agent",
     "roles/cloudfunctions.admin",
     "roles/logging.logWriter",
@@ -13,7 +12,8 @@ locals {
     "roles/monitoring.metricWriter",
     "roles/iam.serviceAccountUser",
     "roles/artifactregistry.reader",
-    "roles/artifactregistry.writer"
+    "roles/artifactregistry.writer",
+    "roles/cloudtasks.admin"
   ]
 }
 

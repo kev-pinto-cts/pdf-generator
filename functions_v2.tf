@@ -87,7 +87,7 @@ resource "google_cloudfunctions2_function" "task_function" {
 
   build_config {
     runtime     = "python311"
-    entry_point = "create_http_task"
+    entry_point = "run"
 
     environment_variables = {
       BUILD_CONFIG_TEST = "build_test"
