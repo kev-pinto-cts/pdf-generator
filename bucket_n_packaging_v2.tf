@@ -11,7 +11,8 @@ locals {
     "cloudbuild.googleapis.com",
     "drive.googleapis.com",
     "artifactregistry.googleapis.com",
-    "run.googleapis.com"
+    "run.googleapis.com",
+    "cloudtasks.googleapis.com"
   ]
 }
 
