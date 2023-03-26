@@ -7,8 +7,6 @@ locals {
 }
 
 
-
-
 # https://cloud.google.com/run/docs/troubleshooting#service-agent
 resource "google_project_iam_member" "project" {
   project = var.project_id
@@ -16,12 +14,12 @@ resource "google_project_iam_member" "project" {
   member  = "serviceAccount:service-${data.google_project.function_project.number}@serverless-robot-prod.iam.gserviceaccount.com"
 }
 
+
 resource "google_cloudfunctions2_function" "function" {
   project  = var.project_id
   name     = "generate-pdfs"
   location = var.region
   
-
   build_config {
     runtime     = "python311"
     entry_point = "generate_pdfs"
@@ -52,7 +50,6 @@ resource "google_cloudfunctions2_function" "function" {
   }
 }
 
-
 resource "google_cloud_tasks_queue" "reporting_queue" {
   name = "pdf-queue"
   project = var.project_id
@@ -78,4 +75,54 @@ resource "google_cloud_tasks_queue" "reporting_queue" {
     google_cloudfunctions2_function.function
   ]
 }
+
+
+
+
+resource "google_cloudfunctions2_function" "task_function" {
+  project  = var.project_id
+  name     = "main-function"
+  location = var.region
+  
+
+  build_config {
+    runtime     = "python311"
+    entry_point = "create_http_task"
+
+    environment_variables = {
+      BUILD_CONFIG_TEST = "build_test"
+    }
+
+    source {
+      storage_source {
+        bucket = google_storage_bucket.source_code.name
+        object = google_storage_bucket_object.task_storage_object.name
+      }
+    }
+  }
+
+service_config {
+    min_instance_count = 0
+    max_instance_count = 1
+    max_instance_request_concurrency = 1
+    available_cpu = 2
+    available_memory   = "512Mi"
+    timeout_seconds    = 540
+    ingress_settings   = "ALLOW_ALL"
+    all_traffic_on_latest_revision = true
+    environment_variables = merge(local.env_vars,
+                            {
+                              PDF_GENERATOR_URI=google_cloudfunctions2_function.function.service_config[0].uri
+                              PDF_TASK_Q = google_cloud_tasks_queue.reporting_queue.name
+                            }
+                            )
+    service_account_email = google_service_account.function.email
+  }
+  depends_on = [
+    google_cloudfunctions2_function.function,
+    google_cloud_tasks_queue.reporting_queue
+  ]
+}
+
+
 

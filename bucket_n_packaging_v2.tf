@@ -87,3 +87,23 @@ resource "google_storage_bucket_object" "reporting" {
     google_storage_bucket.pdf_bucket,
   ]
 }
+
+
+data "archive_file" "task_archive" {
+  type        = "zip"
+  source_dir  = "../functions/generate_tasks"
+  output_path = "../functions/generate_tasks.zip"
+  excludes = ["../functions/generate_tasks/__pycache__"]
+}
+
+resource "google_storage_bucket_object" "task_storage_object" {
+  name         = "generate-tasks-${data.archive_file.task_archive.output_md5}.zip"
+  content_type = "application/zip"
+  bucket       = google_storage_bucket.source_code.name
+  source       = data.archive_file.task_archive.output_path
+  depends_on = [
+    data.archive_file.report_archive,
+    google_storage_bucket.source_code,
+    google_storage_bucket.pdf_bucket,
+  ]
+}
