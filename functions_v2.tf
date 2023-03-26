@@ -114,6 +114,7 @@ service_config {
                             {
                               PDF_GENERATOR_URI=google_cloudfunctions2_function.function.service_config[0].uri
                               PDF_TASK_Q = google_cloud_tasks_queue.reporting_queue.name
+                              SA_EMAIL = google_service_account.function.email
                             }
                             )
     service_account_email = google_service_account.function.email
